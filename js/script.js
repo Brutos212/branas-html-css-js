@@ -1,14 +1,15 @@
 class Lancamento {
+
     constructor (categoria, tipo, valor){
         if(tipo !== "receita" && tipo !== "despesa"){
             throw new Error("Lançamento Inválido: Tipo deve ser receita ou despesa")
         }
 
-        if (valor <=0){
+        if (valor <= 0){
             throw new Error("Lançamento Inválido: Valor deve ser maior que zero")
         }
         if (categoria === ""){
-            throw new Error("Lançamento Inválido: A Caregoria é obrigatoria")
+            throw new Error("Lançamento Inválido: A Categoria é obrigatoria")
         }
 
         this.categoria = categoria
@@ -19,44 +20,58 @@ class Lancamento {
 
 
 
-function arrendondar(valor) {
+function arredondar (valor) {
     return Math.round(valor * 100) / 100
 }
 
 function calcularJuros(valor) {
-    juros = arrendondar(valor * 0.1)
+    juros = arredondar(valor * 0.1)
     return juros
 }
 
 function calcularRendimentos (valor) {
-    rendimentos = arrendondar(valor * 0.005)
-    console.log(rendimentos)
+    rendimentos = arredondar(valor * 0.005)
     return rendimentos
 }
-      
 
-function calcularSaldo(mes, saldoInicial,  lancamentos) {
+function distribuirDespesas (lancamentos, total){
+    distribuicaoDeDespesas = []
+    for(lancamento of lancamentos){
+        if(lancamento.tipo === "despesa"){
+            percentual = arredondar((lancamento.valor / total)*100)
+            distribuicaoDeDespesas.push({categoria: lancamento.categoria, percentual})
+
+        }
+        
+    }
+    return distribuicaoDeDespesas
+}
+
+function calcularSaldo (mes, saldoInicial,  lancamentos) {
     console.log(mes)
-    totalizadorDoMes = {saldo: 0, juros: 0, rendimentos: 0, receita:0, despesa: 0}
+    totalizadorDoMes = {saldo: 0, saldoInicial, juros: 0, rendimentos: 0, receitas:0, despesas: 0, distribuicaoDeDespesas: []}
     totalizadorDoMes.saldo = saldoInicial
 
     for (lancamento of lancamentos){
-        if (lancamento.tipo ==="receita"){
+        if (lancamento.tipo === "receita"){
             totalizadorDoMes.saldo += lancamento.valor
+            totalizadorDoMes.receitas += lancamento.valor
         }
         if(lancamento.tipo === "despesa"){
             totalizadorDoMes.saldo -= lancamento.valor
+            totalizadorDoMes.despesas += lancamento.valor
         }
 
     }
-
+   
+    totalizadorDoMes.distribuicaoDeDespesas = distribuirDespesas(lancamentos, totalizadorDoMes.despesas)
     estaNegativo = totalizadorDoMes.saldo < 0
     if (estaNegativo) {
-        juros = calcularJuros(totalizadorDoMes.saldo)
-        totalizadorDoMes.saldo = arrendondar(totalizadorDoMes.saldo + juros)
+        totalizadorDoMes.juros = calcularJuros(totalizadorDoMes.saldo)
+        totalizadorDoMes.saldo = arredondar(totalizadorDoMes.saldo + totalizadorDoMes.juros)
     } else {
-        rendimentos = calcularRendimentos(totalizadorDoMes.saldo)
-        totalizadorDoMes.saldo = arrendondar(totalizadorDoMes.saldo + rendimentos)
+        totalizadorDoMes.rendimentos = calcularRendimentos(totalizadorDoMes.saldo)
+        totalizadorDoMes.saldo = arredondar(totalizadorDoMes.saldo + totalizadorDoMes.rendimentos)
     }
     return totalizadorDoMes
 }
@@ -65,7 +80,7 @@ saldoInicial = 0
 
 lancamentosJaneiro = [
     new Lancamento( "Salário",  "receita", 3000), 
-    new Lancamento( "Aluguel",  "despesa", 1000
+    new Lancamento( "Aluguel",  "despesa", 10000),
     new Lancamento( "Conta de Luz",  "despesa", 200), 
     new Lancamento( "Conta de Agua",  "despesa", 100), 
     new Lancamento( "Internet",  "despesa",  100), 
@@ -76,8 +91,8 @@ lancamentosJaneiro = [
     new Lancamento( "Farmácia",  "despesa",  100)
 ]
 
-saldo1 = calcularSaldo("janeiro", saldoInicial, lancamentosJaneiro)
-console.log(saldo1)
+totalizadorDoMes1 = calcularSaldo("janeiro", saldoInicial, lancamentosJaneiro)
+console.log(totalizadorDoMes1)
 
 lancamentosFevereiro = [
     new Lancamento( "Salario",  "receita",  3000), 
@@ -90,8 +105,8 @@ lancamentosFevereiro = [
     new Lancamento( "Condominio",  "despesa",  400)
 ]
 
-saldo2 = calcularSaldo("feveiro", saldo1, lancamentosFevereiro)
-console.log(saldo2)
+totalizadorDoMes2 = calcularSaldo("fevereiro", totalizadorDoMes1.saldo, lancamentosFevereiro)
+console.log(totalizadorDoMes2)
 
 lancamentosMarco = [
     new Lancamento( "Salário",  "receita",  4000), 
@@ -105,8 +120,8 @@ lancamentosMarco = [
     new Lancamento( "Condominio",  "despesa",  400)
 ]
 
-saldo3 = calcularSaldo("marco", saldo2, lancamentosMarco)
+saldo3 = calcularSaldo("marco", totalizadorDoMes2.saldo, lancamentosMarco)
 console.log(saldo3)
-acumuladoAno = saldo3
+acumuladoAno = saldo3.saldo
 console.log("ano")
 console.log(acumuladoAno)
