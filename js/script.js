@@ -65,7 +65,7 @@ saldoInicial = 0
 
 lancamentosJaneiro = [
     new Lancamento( "Salário",  "receita", 3000), 
-    new Lancamento( "Aluguel",  "despesa", 1000), 
+    new Lancamento( "Aluguel",  "despesa", 1000
     new Lancamento( "Conta de Luz",  "despesa", 200), 
     new Lancamento( "Conta de Agua",  "despesa", 100), 
     new Lancamento( "Internet",  "despesa",  100), 
